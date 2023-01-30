@@ -9,13 +9,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.validation.annotation.Validated;
-import pl.byczazagroda.trackexpensesappbackend.controller.WalletController;
-import pl.byczazagroda.trackexpensesappbackend.dto.error.ErrorResponse;
-import pl.byczazagroda.trackexpensesappbackend.exception.AppRuntimeException;
-import pl.byczazagroda.trackexpensesappbackend.exception.ErrorCode;
-import pl.byczazagroda.trackexpensesappbackend.mapper.WalletModelMapper;
-import pl.byczazagroda.trackexpensesappbackend.model.Wallet;
-import pl.byczazagroda.trackexpensesappbackend.repository.WalletRepository;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.api.WalletController;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.error.ErrorResponse;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.WalletBusinessRepository;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.AppRuntimeException;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.ErrorCode;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.mapper.WalletModelMapper;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.Wallet;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.WalletRepository;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.usecase.WalletServiceImpl;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -47,7 +49,7 @@ class WalletDeleteServiceImplTest {
     private WalletModelMapper walletModelMapper;
 
     @MockBean
-    private WalletRepository walletRepository;
+    private WalletBusinessRepository walletBusinessRepository;
 
     @Autowired
     private WalletServiceImpl walletService;
@@ -61,7 +63,7 @@ class WalletDeleteServiceImplTest {
         wallet.setCreationDate(DATE_NOW);
 
         //when
-        when(walletRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        when(walletBusinessRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         //then
         assertThatThrownBy(() -> walletService.deleteWalletById(ID_5L)).isInstanceOf(AppRuntimeException.class);
