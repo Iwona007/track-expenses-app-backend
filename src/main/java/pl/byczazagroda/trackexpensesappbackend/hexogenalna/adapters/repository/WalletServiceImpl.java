@@ -1,4 +1,4 @@
-package pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.usecase;
+package pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -23,7 +23,7 @@ import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.ErrorCode;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.mapper.WalletModelMapper;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.api.WalletService;
-import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.usecase.WalletServiceImpl;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.WalletServiceImpl;
 
 import java.time.Instant;
 import java.util.Collections;

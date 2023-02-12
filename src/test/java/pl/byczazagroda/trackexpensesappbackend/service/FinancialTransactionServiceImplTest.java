@@ -9,13 +9,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.FinancialTransactionDTO;
-import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.FinancialTransactionBusinessRepository;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.FinancialTransactionRepositoryPort;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.AppRuntimeException;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.ErrorCode;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.mapper.FinancialTransactionModelMapper;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.FinancialTransaction;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.Wallet;
-import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.usecase.FinancialTransactionServiceImpl;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.FinancialTransactionServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -39,7 +39,7 @@ class FinancialTransactionServiceImplTest {
 
 
     @Mock
-    private FinancialTransactionBusinessRepository financialTransactionBusinessRepository;
+    private FinancialTransactionRepositoryPort financialTransactionRepositoryPort;
 
     @InjectMocks
     private FinancialTransactionServiceImpl financialTransactionService;
@@ -78,7 +78,7 @@ class FinancialTransactionServiceImplTest {
 
 
         //when
-        when(financialTransactionBusinessRepository.findAllByWalletIdOrderByTransactionDateDesc(ID_1L)).thenReturn(financialTransactionsList);
+        when(financialTransactionRepositoryPort.findAllByWalletIdOrderByTransactionDateDesc(ID_1L)).thenReturn(financialTransactionsList);
         when(financialTransactionModelMapper.mapFinancialTransactionEntityToFinancialTransactionDTO(financialTransaction1)).thenReturn(financialTransactionDTO1);
         when(financialTransactionModelMapper.mapFinancialTransactionEntityToFinancialTransactionDTO(financialTransaction2)).thenReturn(financialTransactionDTO2);
 
@@ -100,7 +100,7 @@ class FinancialTransactionServiceImplTest {
         financialTransaction.setTransactionDate(DATE_NOW);
 
         //when
-        given(financialTransactionBusinessRepository.findById(Mockito.anyLong())).willReturn(Optional.empty());
+        given(financialTransactionRepositoryPort.findById(Mockito.anyLong())).willReturn(Optional.empty());
 
         //then
         assertThatThrownBy(() -> financialTransactionService.findById(ID_10L)).isInstanceOf(AppRuntimeException.class);
@@ -118,7 +118,7 @@ class FinancialTransactionServiceImplTest {
         FinancialTransactionDTO financialTransactionDTO = new FinancialTransactionDTO(ID_1L, BigDecimal.valueOf(20), "description", EXPENSE, DATE_NOW);
 
         //when
-        when(financialTransactionBusinessRepository.findById(ID_1L)).thenReturn(Optional.of(financialTransaction));
+        when(financialTransactionRepositoryPort.findById(ID_1L)).thenReturn(Optional.of(financialTransaction));
         when(financialTransactionModelMapper.mapFinancialTransactionEntityToFinancialTransactionDTO(financialTransaction)).thenReturn(financialTransactionDTO);
         FinancialTransactionDTO foundTransaction = financialTransactionService.findById(ID_1L);
 
@@ -131,7 +131,7 @@ class FinancialTransactionServiceImplTest {
     void ShouldThrowAnException_WhenGivenTransactionDoesNotExist() {
         //given
         //when
-        when(financialTransactionBusinessRepository.existsById(ID_1L)).thenReturn(false);
+        when(financialTransactionRepositoryPort.existsById(ID_1L)).thenReturn(false);
 
         //then
         Assertions.assertThrows(AppRuntimeException.class, () -> financialTransactionService.deleteTransactionById(ID_1L));

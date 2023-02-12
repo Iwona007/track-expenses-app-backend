@@ -1,4 +1,4 @@
-package pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.usecase;
+package pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository;
 
 
 import lombok.RequiredArgsConstructor;
@@ -7,14 +7,11 @@ import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.CreateFi
 import org.springframework.validation.annotation.Validated;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.FinancialTransactionDTO;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.UpdateFinancialTransactionDTO;
-import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.FinancialTransactionBusinessRepository;
+import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.FinancialTransactionRepositoryPort;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.api.FinancialTransactionService;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.ErrorCode;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.domaincore.exception.AppRuntimeException;
 import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.dto.mapper.FinancialTransactionModelMapper;
-import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.FinancialTransaction;
-import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.Wallet;
-import pl.byczazagroda.trackexpensesappbackend.hexogenalna.adapters.repository.WalletRepository;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -29,7 +26,7 @@ import java.util.Optional;
 @Validated
 public class FinancialTransactionServiceImpl implements FinancialTransactionService {
 
-    private final FinancialTransactionBusinessRepository financialTransactionBusinessRepository;
+    private final FinancialTransactionRepositoryPort financialTransactionRepositoryPort;
     private final FinancialTransactionModelMapper financialTransactionModelMapper;
     private final WalletRepository walletRepository;
 
@@ -50,20 +47,20 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                 .amount(createFinancialTransactionDTO.amount())
                 .build();
 
-        FinancialTransaction savedFinancialTransaction = financialTransactionBusinessRepository.save(financialTransaction);
+        FinancialTransaction savedFinancialTransaction = financialTransactionRepositoryPort.save(financialTransaction);
         return financialTransactionModelMapper.mapFinancialTransactionEntityToFinancialTransactionDTO(savedFinancialTransaction);
     }
 
     @Override
     public List<FinancialTransactionDTO> getFinancialTransactionsByWalletId(@Min(1) @NotNull Long walletId) {
-        return financialTransactionBusinessRepository.findAllByWalletIdOrderByTransactionDateDesc(walletId).stream()
+        return financialTransactionRepositoryPort.findAllByWalletIdOrderByTransactionDateDesc(walletId).stream()
                 .map(financialTransactionModelMapper::mapFinancialTransactionEntityToFinancialTransactionDTO)
                 .toList();
     }
 
     @Override
     public FinancialTransactionDTO findById(@Min(1) @NotNull Long id) {
-        Optional<FinancialTransaction> financialTransaction = financialTransactionBusinessRepository.findById(id);
+        Optional<FinancialTransaction> financialTransaction = financialTransactionRepositoryPort.findById(id);
         return financialTransaction.map(financialTransactionModelMapper::mapFinancialTransactionEntityToFinancialTransactionDTO)
                 .orElseThrow(() -> new AppRuntimeException(ErrorCode.FT001,
                         String.format("Financial transaction with id: %d not found", id))); //fixme
@@ -71,8 +68,8 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
 
     @Override
     public void deleteTransactionById(@Min(1) @NotNull Long id) {
-        if (financialTransactionBusinessRepository.existsById(id)) {
-            financialTransactionBusinessRepository.deleteById(id);
+        if (financialTransactionRepositoryPort.existsById(id)) {
+            financialTransactionRepositoryPort.deleteById(id);
         } else {
             throw new AppRuntimeException(
                     ErrorCode.FT001,
@@ -86,7 +83,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
             @Min(1) @NotNull Long id,
             @Valid UpdateFinancialTransactionDTO updateTransactionDTO){
 
-        FinancialTransaction financialTransaction = financialTransactionBusinessRepository.findById(id)
+        FinancialTransaction financialTransaction = financialTransactionRepositoryPort.findById(id)
                 .orElseThrow(()-> {
                     throw new AppRuntimeException(ErrorCode.FT001,
                             String.format("Financial transaction with id: %d not found", id));
